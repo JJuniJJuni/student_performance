@@ -9,7 +9,8 @@ import torch
 def preprocess(path):
     input_data = pandas.read_csv(path, ';')
     class_le = LabelEncoder()
-    exception_labels = ['address', 'Mjob', 'Fjob', 'guardian', 'nursery', 'romantic', 'famsize', 'reason', 'activities', 'internet', 'Dalc', 'Walc']
+    exception_labels = ['address', 'Mjob', 'Fjob', 'guardian', 'nursery', 'romantic',
+                        'famsize', 'reason', 'activities', 'internet', 'Dalc', 'Walc']
     labels = [label for label in input_data.keys() if label not in exception_labels]
     for column in input_data[labels].columns:
         input_data[column] = class_le.fit_transform(input_data[column].values)

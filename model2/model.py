@@ -39,11 +39,6 @@ class NeuralNet(nn.Module):
         return x
 
 
-# x_train, x_test, y_train, y_test = split_data(input_matrix, target_matrix)
-# x_train = torch.tensor(x_train, device=device, dtype=torch.float, requires_grad=False)
-# x_test = torch.tensor(x_test, device=device, dtype=torch.float, requires_grad=False)
-# y_train = torch.tensor(y_train, device=device, dtype=torch.float, requires_grad=False)
-# y_test = torch.tensor(y_test, device=device, dtype=torch.float, requires_grad=False)
 input_arrays, target_arrays = cross_validation(10, input_matrix, target_matrix)
 criterion = nn.MSELoss()
 
