@@ -25,12 +25,12 @@ class NeuralNet(nn.Module):
         return x
 
 
-input_matrix, target_matrix = preprocess('data/student-por.csv')
+input_matrix, target_matrix = preprocess('./data/student-por.csv')
 x_train, x_test, y_train, y_test = split_data(input_matrix, target_matrix)
-x_train = torch.tensor(x_train, device=torch.device('cpu'), dtype=torch.float, requires_grad=False)
-x_test = torch.tensor(x_test, device=torch.device('cpu'), dtype=torch.float, requires_grad=False)
-y_train = torch.tensor(y_train, device=torch.device('cpu'), dtype=torch.float, requires_grad=False)
-y_test = torch.tensor(y_test, device=torch.device('cpu'), dtype=torch.float, requires_grad=False)
+x_train = torch.tensor(x_train, device=torch.device('cuda:0'), dtype=torch.float, requires_grad=False)
+x_test = torch.tensor(x_test, device=torch.device('cuda:0'), dtype=torch.float, requires_grad=False)
+y_train = torch.tensor(y_train, device=torch.device('cuda:0'), dtype=torch.float, requires_grad=False)
+y_test = torch.tensor(y_test, device=torch.device('cuda:0'), dtype=torch.float, requires_grad=False)
 model = NeuralNet(32, 1)
 print('[Model Structure]')
 print(model)
@@ -38,10 +38,10 @@ print(model)
 criterion = nn.MSELoss()
 optimizer = optim.SGD(model.parameters(), lr=0.01)
 
-for _ in range(5000):
+for _ in range(20000):
     # x_train.to(device), y_train.to(device)
-    output_data = model(x_train)
-    loss = criterion(torch.squeeze(output_data), y_train)
+    output_data = model(x_train.to(device=torch.device('cpu')))
+    loss = criterion(torch.squeeze(output_data), y_train.to(device=torch.device('cpu')))
     model.zero_grad()
     optimizer.zero_grad()
     loss.backward()
@@ -54,11 +54,11 @@ correct = 0
 
 print('[Test]')
 for data, target in zip(x_test, y_test):
-    output_data = int(model(data))
+    output_data = int(model(data.to(device=torch.device('cpu'))))
     # print(output_data)
     # value = int(torch.argmax(output_data))
     print(output_data, target)
-    if output_data == target:
+    if round(output_data) == target:
         correct += 1
 print(100*(correct/len(y_test)))
 print('[Prediction]')
