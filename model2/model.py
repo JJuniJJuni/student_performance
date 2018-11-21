@@ -2,9 +2,20 @@ import torch
 from torch import nn
 from torch import optim
 from torch.nn import functional as F
+import numpy as np
 
 from preprocess import preprocess
 from preprocess import split_data
+from preprocess import cross_validation
+
+
+epoch, device = 5000, torch.device('cpu')
+input_mat, target_mat, features_counts = preprocess('./data/student-por.csv')
+input_por, target_por, _ = preprocess('./data/student-mat.csv')
+input_matrix = torch.tensor(np.concatenate((input_mat, input_por), 0), device=device,
+                            dtype=torch.float, requires_grad=False)
+target_matrix = torch.tensor(np.concatenate((target_mat, target_por), 0), device=device,
+                             dtype=torch.float, requires_grad=False)
 
 
 class NeuralNet(nn.Module):
@@ -25,20 +36,18 @@ class NeuralNet(nn.Module):
         return x
 
 
-input_matrix, target_matrix, features_counts = preprocess('./data/student-por.csv')
-epoch, device = 20000, torch.device('cpu')
-x_train, x_test, y_train, y_test = split_data(input_matrix, target_matrix)
-x_train = torch.tensor(x_train, device=device, dtype=torch.float, requires_grad=False)
-x_test = torch.tensor(x_test, device=device, dtype=torch.float, requires_grad=False)
-y_train = torch.tensor(y_train, device=device, dtype=torch.float, requires_grad=False)
-y_test = torch.tensor(y_test, device=device, dtype=torch.float, requires_grad=False)
+# x_train, x_test, y_train, y_test = split_data(input_matrix, target_matrix)
+# x_train = torch.tensor(x_train, device=device, dtype=torch.float, requires_grad=False)
+# x_test = torch.tensor(x_test, device=device, dtype=torch.float, requires_grad=False)
+# y_train = torch.tensor(y_train, device=device, dtype=torch.float, requires_grad=False)
+# y_test = torch.tensor(y_test, device=device, dtype=torch.float, requires_grad=False)
+input_arrays, target_arrays = cross_validation(10, input_matrix, target_matrix)
 model = NeuralNet(features_counts, 1)
 criterion = nn.MSELoss()
 optimizer = optim.SGD(model.parameters(), lr=0.01)
 
 
 def train(epoch, input_model, input_training, input_target):
-    print('[Train]')
     for idx in range(epoch):
         # x_train.to(device), y_train.to(device)
         output_data = input_model(input_training.to(device=torch.device('cpu')))
@@ -47,16 +56,15 @@ def train(epoch, input_model, input_training, input_target):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        if idx % 50 == 0:
-            print('Train Epoch: {}/{}\tLoss: {:.6f}'.format(idx, epoch, loss.data[0]))
+        # if idx % 50 == 0:
+        #     print('Train Epoch: {}/{}\tLoss: {:.6f}'.format(idx, epoch, loss.data[0]))
 
 
 def test(text, input_model, input_train, input_target):
-    print('[Test]')
     correct = 0
     for data, target in zip(input_train, input_target):
         output_data = float(input_model(data.to(device=torch.device('cpu'))))
-        print(output_data, target)
+        # print(output_data, target)
         if round(output_data) == target:
             correct += 1
     print('{} Percentage:'.format(text), 100 * (correct / len(input_target)))
@@ -64,9 +72,17 @@ def test(text, input_model, input_train, input_target):
 
 print('[Model Structure]')
 print(model)
-train(epoch, model, x_train, y_train)
-test('Train', model, x_train, y_train)
-test('Test', model, x_test, y_test)
+for idx, (x_test, y_test) in enumerate(zip(input_arrays, target_arrays)):
+    x_train = torch.tensor([], device=device, dtype=torch.float, requires_grad=False)
+    # print(x_train)
+    y_train = torch.tensor([], device=device, dtype=torch.float, requires_grad=False)
+    for train_idx, (x, y) in enumerate(zip(input_arrays, target_arrays)):
+        if train_idx != idx:
+            x_train = torch.cat((x_train, x), 0)
+            y_train = torch.cat((y_train, y), 0)
+    train(epoch, model, x_train, y_train)
+    test('R{} Train'.format(idx+1), model, x_train, y_train)
+    test('R{} Test'.format(idx+1), model, x_test, y_test)
 
 
 # model.eval()

@@ -1,6 +1,6 @@
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from torchvision import datasets, transforms
+from sklearn.model_selection import KFold
 import numpy as np
 import pandas
 import torch
@@ -24,7 +24,19 @@ def split_data(input_data, target_data):
     return x_train, x_test, y_train, y_test
 
 
+def cross_validation(ratio, input_data, target_data):
+    input_arrays, target_arrays, length = [], [], len(input_data)
+    quo = length // ratio
+    for idx in range(ratio):
+        start = idx * quo
+        end = (idx + 1) * quo if idx != ratio - 1 else (idx + 1) * quo + length % ratio
+        input_arrays.append(input_data[start:end])
+        target_arrays.append(target_data[start:end])
+    return input_arrays, target_arrays
+
+
 if __name__ == '__main__':
-    input_matrix, target_matrix, length = preprocess('data/student-por.csv')
-    x_train, x_test, y_train, y_test = split_data(input_matrix, target_matrix)
+    input_matrix, target_matrix, length = preprocess('./data/student-por.csv')
+    # x_train, x_test, y_train, y_test = split_data(input_matrix, target_matrix)
+    inputs, targets = cross_validation(10, input_matrix, target_matrix)
 
