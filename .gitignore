@@ -1,0 +1,14 @@
+# pyc
+*.pyc$
+
+# pycache
+__pycache__
+
+# .idea
+.idea
+
+# pyc
+*.pyc
+
+# shop_data
+shop_data
