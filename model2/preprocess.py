@@ -9,12 +9,13 @@ import torch
 def preprocess(path):
     input_data = pandas.read_csv(path, ';')
     class_le = LabelEncoder()
-    labels = list(input_data.keys())
+    exception_labels = ['address', 'Mjob', 'Fjob', 'guardian', 'nursery', 'romantic']
+    labels = [label for label in input_data.keys() if label not in exception_labels]
     for column in input_data[labels].columns:
         input_data[column] = class_le.fit_transform(input_data[column].values)
     input_matrix = np.transpose(np.array([input_data[label] for label in labels if label != 'G3']))
     target_matrix = np.array(input_data['G3'])
-    return input_matrix, target_matrix
+    return input_matrix, target_matrix, input_matrix.shape[1]
 
 
 def split_data(input_data, target_data):
@@ -24,6 +25,6 @@ def split_data(input_data, target_data):
 
 
 if __name__ == '__main__':
-    input_matrix, target_matrix = preprocess('data/student-por.csv')
+    input_matrix, target_matrix, length = preprocess('data/student-por.csv')
     x_train, x_test, y_train, y_test = split_data(input_matrix, target_matrix)
 

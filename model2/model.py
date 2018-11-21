@@ -25,49 +25,50 @@ class NeuralNet(nn.Module):
         return x
 
 
-input_matrix, target_matrix = preprocess('./data/student-por.csv')
-epoch, device = 12000, torch.device('cpu')
+input_matrix, target_matrix, features_counts = preprocess('./data/student-por.csv')
+epoch, device = 20000, torch.device('cpu')
 x_train, x_test, y_train, y_test = split_data(input_matrix, target_matrix)
 x_train = torch.tensor(x_train, device=device, dtype=torch.float, requires_grad=False)
 x_test = torch.tensor(x_test, device=device, dtype=torch.float, requires_grad=False)
 y_train = torch.tensor(y_train, device=device, dtype=torch.float, requires_grad=False)
 y_test = torch.tensor(y_test, device=device, dtype=torch.float, requires_grad=False)
-model = NeuralNet(32, 1)
-print('[Model Structure]')
-print(model)
-
+model = NeuralNet(features_counts, 1)
 criterion = nn.MSELoss()
 optimizer = optim.SGD(model.parameters(), lr=0.01)
 
-for idx in range(epoch):
-    # x_train.to(device), y_train.to(device)
-    output_data = model(x_train.to(device=torch.device('cpu')))
-    loss = criterion(torch.squeeze(output_data), y_train.to(device=torch.device('cpu')))
-    model.zero_grad()
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
-    if idx % 50 == 0:
-        print('Train Epoch: {}/{}\tLoss: {:.6f}'.format(
-            idx, epoch, loss.data[0]))
-train_correct = 0
+
+def train(epoch, input_model, input_training, input_target):
+    print('[Train]')
+    for idx in range(epoch):
+        # x_train.to(device), y_train.to(device)
+        output_data = input_model(input_training.to(device=torch.device('cpu')))
+        loss = criterion(torch.squeeze(output_data), input_target.to(device=torch.device('cpu')))
+        model.zero_grad()
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        if idx % 50 == 0:
+            print('Train Epoch: {}/{}\tLoss: {:.6f}'.format(idx, epoch, loss.data[0]))
 
 
-for data, target in zip(x_train, y_train):
-    output_data = float(model(data.to(device=torch.device('cpu'))))
-    print(output_data, target)
-    if round(output_data) == target:
-        train_correct += 1
-print('Train Percentage:', 100*(train_correct/len(y_train)))
+def test(text, input_model, input_train, input_target):
+    print('[Test]')
+    correct = 0
+    for data, target in zip(input_train, input_target):
+        output_data = float(input_model(data.to(device=torch.device('cpu'))))
+        print(output_data, target)
+        if round(output_data) == target:
+            correct += 1
+    print('{} Percentage:'.format(text), 100 * (correct / len(input_target)))
+
+
+print('[Model Structure]')
+print(model)
+train(epoch, model, x_train, y_train)
+test('Train', model, x_train, y_train)
+test('Test', model, x_test, y_test)
+
 
 # model.eval()
-test_correct = 0
-
 # print('[Test]')
-for data, target in zip(x_test, y_test):
-    output_data = float(model(data.to(device=torch.device('cpu'))))
-    # print(output_data, target, bool(output_data == target))
-    if round(output_data) == target:
-        test_correct += 1
-print('Test Percentage:', 100*(test_correct/len(y_test)))
 
