@@ -1,15 +1,18 @@
+import time
 import torch
 from torch import nn
 from torch import optim
 from torch.nn import functional as F
 import numpy as np
 
+
 from preprocess import preprocess
 from preprocess import split_data
 from preprocess import cross_validation
 
 
-epoch, device = 5000, torch.device('cpu')
+start_time = time.time()
+epoch, device = 5000, torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 input_mat, target_mat, features_counts = preprocess('./data/student-por.csv')
 input_por, target_por, _ = preprocess('./data/student-mat.csv')
 input_matrix = torch.tensor(np.concatenate((input_mat, input_por), 0), device=device,
@@ -42,9 +45,7 @@ class NeuralNet(nn.Module):
 # y_train = torch.tensor(y_train, device=device, dtype=torch.float, requires_grad=False)
 # y_test = torch.tensor(y_test, device=device, dtype=torch.float, requires_grad=False)
 input_arrays, target_arrays = cross_validation(10, input_matrix, target_matrix)
-model = NeuralNet(features_counts, 1)
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(), lr=0.01)
 
 
 def train(epoch, input_model, input_training, input_target):
@@ -56,8 +57,8 @@ def train(epoch, input_model, input_training, input_target):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        # if idx % 50 == 0:
-        #     print('Train Epoch: {}/{}\tLoss: {:.6f}'.format(idx, epoch, loss.data[0]))
+        if idx % 50 == 0:
+            print('Train Epoch: {}/{}\tLoss: {:.6f}'.format(idx, epoch, loss.data[0]))
 
 
 def test(text, input_model, input_train, input_target):
@@ -70,9 +71,10 @@ def test(text, input_model, input_train, input_target):
     print('{} Percentage:'.format(text), 100 * (correct / len(input_target)))
 
 
-print('[Model Structure]')
-print(model)
 for idx, (x_test, y_test) in enumerate(zip(input_arrays, target_arrays)):
+    print('R{} Model Structure'.format(idx+1))
+    model = NeuralNet(features_counts, 1)
+    optimizer = optim.SGD(model.parameters(), lr=0.01)
     x_train = torch.tensor([], device=device, dtype=torch.float, requires_grad=False)
     # print(x_train)
     y_train = torch.tensor([], device=device, dtype=torch.float, requires_grad=False)
@@ -83,8 +85,7 @@ for idx, (x_test, y_test) in enumerate(zip(input_arrays, target_arrays)):
     train(epoch, model, x_train, y_train)
     test('R{} Train'.format(idx+1), model, x_train, y_train)
     test('R{} Test'.format(idx+1), model, x_test, y_test)
-
-
+print("time: {}".format(time.time()-start_time))
 # model.eval()
 # print('[Test]')
 
