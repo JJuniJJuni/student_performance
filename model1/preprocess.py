@@ -29,7 +29,7 @@ def preprocess():
             labels = line.split(',')
             continue
         strings.append(line.split(','))
-    exception_labels = []
+    exception_labels = ['cst', 'ms', ]
     labels[-1] = 'atd'
     strings = np.transpose(strings)
     for idx, label in enumerate(labels):
@@ -56,14 +56,15 @@ def preprocess():
 def cross_validation(ratio, input_data, target_data):
     input_arrays, target_arrays, length = [], [], len(input_data)
     quo = length // ratio
-    indexes = [idx for idx in range(ratio)]
-    random.shuffle(indexes)
+    # indexes = [idx for idx in range(ratio)]
+    # random.shuffle(indexes)
     for idx in range(ratio):
         start = idx * quo
         end = (idx + 1) * quo if idx != ratio - 1 else (idx + 1) * quo + length % ratio
         input_arrays.append(input_data[start:end])
         target_arrays.append(target_data[start:end])
-    return [input_arrays[idx] for idx in indexes], [target_arrays[idx] for idx in indexes]
+    # return [input_arrays[idx] for idx in indexes], [target_arrays[idx] for idx in indexes]
+    return input_arrays, target_arrays
 
 
 if __name__ == '__main__':

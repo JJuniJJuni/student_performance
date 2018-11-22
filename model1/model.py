@@ -20,16 +20,27 @@ target_matrix = torch.LongTensor(target_mat, device=device)
 class NeuralNet(nn.Module):
     def __init__(self, input_size, output_size):
         super(NeuralNet, self).__init__()
-        self.input_layer = nn.Linear(input_size, 16)
-        self.L1 = nn.Linear(16, 12)
-        self.L2 = nn.Linear(12, 8)
-        self.output_layer = nn.Linear(8, output_size)
+        self.input_layer = nn.Linear(input_size, 80)
+        self.L1 = nn.Linear(80, 50)
+        self.L2 = nn.Linear(50, 30)
+        # self.L4 = nn.Linear(60, 50)
+        # self.L5 = nn.Linear(50, 40)
+        # self.L6 = nn.Linear(40, 30)
+        # self.L7 = nn.Linear(30, 20)
+        # self.L8 = nn.Linear(20, 10)
+        self.output_layer = nn.Linear(30, output_size)
 
     def forward(self, x):
         x = F.relu(self.input_layer(x))
         x = F.relu(self.L1(x))
         x = F.relu(self.L2(x))
-        x = self.output_layer(x)
+        # x = F.relu(self.L3(x))
+        # x = F.dropout(self.L4(x))
+        # x = F.relu(self.L5(x))
+        # x = F.relu(self.L6(x))
+        # x = F.relu(self.L7(x))
+        # x = F.relu(self.L8(x))
+        # x = self.output_layer(x)
         return x
 
 
@@ -77,7 +88,7 @@ for idx, (x_test, y_test) in enumerate(zip(input_arrays, target_arrays)):
     # print('R{} Model Structure'.format(idx+1))
     model = NeuralNet(features_counts, 4)
     model.apply(init_weights)
-    optimizer = optim.SGD(model.parameters(), lr=0.05)
+    optimizer = optim.SGD(model.parameters(), lr=0.03)
     x_train = torch.LongTensor([], device=device)
     y_train = torch.LongTensor([], device=device)
     for train_idx, (x, y) in enumerate(zip(input_arrays, target_arrays)):

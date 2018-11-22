@@ -1,0 +1,121 @@
+[ge]
+F: 59
+M: 72
+
+[cst]
+G: 44
+OBC: 57
+MOBC: 6
+ST: 20
+SC: 4
+
+[tnp]
+Good: 59
+Vg: 38
+Pass: 25
+Best: 9
+
+[twp]
+Good: 65
+Vg: 44
+Pass: 17
+Best: 5
+
+[iap]
+Vg: 63
+Good: 53
+Pass: 7
+Best: 8
+
+[esp]
+Good: 54
+Vg: 42
+Best: 8
+Pass: 27
+
+[arr]
+Y: 53
+N: 78
+
+[ms]
+Unmarried: 131
+
+[ls]
+V: 92
+T: 39
+
+[as]
+Paid: 76
+Free: 55
+
+[fmi]
+Medium: 63
+Low: 20
+Am: 27
+High: 15
+Vh: 6
+
+[fs]
+Average: 40
+Small: 89
+Large: 2
+
+[fq]
+Um: 40
+12: 22
+10: 23
+Il: 20
+Degree: 20
+Pg: 6
+
+[mq]
+10: 25
+Il: 27
+Um: 52
+12: 17
+Degree: 7
+Pg: 3
+
+[fo]
+Farmer: 27
+Service: 38
+Business: 34
+Others: 29
+Retired: 3
+
+[mo]
+Housewife: 115
+Service: 12
+Business: 1
+Retired: 1
+Others: 2
+
+[nf]
+Large: 58
+Small: 30
+Average: 43
+
+[sh]
+Poor: 45
+Average: 59
+Good: 27
+
+[ss]
+Govt: 91
+Private: 40
+
+[me]
+Asm: 60
+Eng: 62
+Hin: 7
+Ben: 2
+
+[tt]
+Small: 78
+Average: 43
+Large: 10
+
+[atd]
+Good: 56
+Average: 47
+Poor: 28
