@@ -11,7 +11,7 @@ from preprocess import cross_validation
 
 
 start_time = time.time()
-epoch, device = 8000, torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+epoch, device = 5000, torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 input_mat, target_mat, features_counts = preprocess()
 input_matrix = torch.LongTensor(input_mat, device=device)
 target_matrix = torch.LongTensor(target_mat, device=device)
@@ -33,7 +33,7 @@ class NeuralNet(nn.Module):
         return x
 
 
-ratio = 5
+ratio = 10
 input_arrays, target_arrays = cross_validation(ratio, input_matrix, target_matrix)
 criterion = nn.CrossEntropyLoss()
 
