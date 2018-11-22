@@ -29,7 +29,7 @@ def preprocess():
             labels = line.split(',')
             continue
         strings.append(line.split(','))
-    exception_labels = ['cst', 'ms', ]
+    exception_labels = ['cst', 'ms', 'fmi', 'fq', 'mq']
     labels[-1] = 'atd'
     strings = np.transpose(strings)
     for idx, label in enumerate(labels):
