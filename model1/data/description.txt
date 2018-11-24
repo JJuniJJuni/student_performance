@@ -1,0 +1,74 @@
+GE Gender (Male, Female)
+
+CST Caste (General,SC,ST,OBC,MOBC)
+
+TNP Class X Percentage (Best, Very Good, Good, Pass, Fail)
+If percentage >=80 then Best
+If percentage >= 60 but less than 80 then Very Good
+If percentage >= 45 but less than 60 then Good
+If Percentage >= 30 but less than 45 then Pass
+If Percentage < 30 then Fail
+
+TWP Class XII Percentage (Best, Very Good, Good, Pass, Fail)
+Same as TNP
+
+IAP Internal Assessment Percentage (Best, Very Good, Good, Pass, Fail)
+Same as TNP
+
+ESP End Semester Percentage (Best, Very Good, Good, Pass, Fail)
+Same as TNP
+
+ARR Whether the student has back or arrear
+papers
+(Yes, No)
+
+MS Marital Status (Married, Unmarried)
+
+LS Lived in Town or Village (Town, Village)
+
+AS Admission Category (Free, Paid)
+
+FMI Family Monthly Income
+(in INR)
+(Very High, High, Above Medium, Medium, Low)
+If FMI >= 30000 then Very High
+If FMI >= 20000 but less than 30000 then High
+If FMI >= 10000 but less than 20000 then Above Medium
+If FMI >= 5000 but less than 10000 then Medium
+If FMI is less than 5000 then Low
+The figures are expressed in INR.
+
+FS Family Size (Large, Average, Small)
+If FS > 12 then Large
+If FS >= 6 but less than 12 then Average
+If FS < 6 then Small
+
+FQ Father Qualification (IL, UM, 10, 12 , Degree, PG )
+IL= Illiterate UM= Under Class X
+
+MQ Mother Qualification (IL, UM, 10, 12 , Degree, PG )
+IL= Illiterate UM= Under Class X
+
+FO Father Occupation (Service, Business, Retired, Farmer, Others)
+
+MO Mother Occupation (Service, Business, Retired, Farmer, Others)
+
+NF Number of Friends (Large, Average, Small)
+Same as Family Size
+
+SH Study Hours (Good, Average, Poor)
+>= 6 hours Good >= 4 hours Average < 2 hours Poor
+
+SS Student School attended at Class X
+level
+( Govt., Private)
+
+ME Medium (Eng,Asm,Hin,Ben)
+
+TT Home to College Travel Time ( Large, Average, Small )
+>= 2 hours Large >=1 hours Average < 1 hour Small
+
+ATD Class Attendance Percentage (Good, Average, Poor)
+If percentage >= 80 then Good
+If percentage >= 60 but less than 80 then Average
+If Percentage < 60 then poor

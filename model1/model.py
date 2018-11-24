@@ -10,40 +10,27 @@ from preprocess import preprocess
 from preprocess import cross_validation
 
 
-start_time = time.time()
-epoch, device = 5000, torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-input_mat, target_mat, features_counts = preprocess()
-input_matrix = torch.LongTensor(input_mat, device=device)
-target_matrix = torch.LongTensor(target_mat, device=device)
-
-
 class NeuralNet(nn.Module):
     def __init__(self, input_size, output_size):
         super(NeuralNet, self).__init__()
-        self.input_layer = nn.Linear(input_size, 80)
-        self.L1 = nn.Linear(80, 50)
-        self.L2 = nn.Linear(50, 30)
-        # self.L4 = nn.Linear(60, 50)
-        # self.L5 = nn.Linear(50, 40)
-        # self.L6 = nn.Linear(40, 30)
-        # self.L7 = nn.Linear(30, 20)
-        # self.L8 = nn.Linear(20, 10)
-        self.output_layer = nn.Linear(30, output_size)
+        self.input_layer = nn.Linear(input_size, 16, bias=False)
+        self.L1 = nn.Linear(16, 10, bias=False)
+        self.L2 = nn.Linear(10, 5, bias=False)
+        self.output_layer = nn.Linear(5, output_size, bias=False)
 
     def forward(self, x):
         x = F.relu(self.input_layer(x))
         x = F.relu(self.L1(x))
         x = F.relu(self.L2(x))
-        # x = F.relu(self.L3(x))
-        # x = F.dropout(self.L4(x))
-        # x = F.relu(self.L5(x))
-        # x = F.relu(self.L6(x))
-        # x = F.relu(self.L7(x))
-        # x = F.relu(self.L8(x))
-        # x = self.output_layer(x)
+        x = self.output_layer(x)
         return x
 
 
+start_time = time.time()
+# epoch, device = 5000, torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+epoch = 5000
+
+input_matrix, target_matrix, features_counts = preprocess()
 ratio = 10
 input_arrays, target_arrays = cross_validation(ratio, input_matrix, target_matrix)
 criterion = nn.CrossEntropyLoss()
@@ -51,7 +38,9 @@ criterion = nn.CrossEntropyLoss()
 
 def train(epoch, input_model, input_training, input_target):
     for idx in range(epoch):
-        output_data = input_model(input_training.type(torch.float))
+        output_data = input_model(input_training)
+        input_target = input_target.long()
+        output_data = output_data.float()
         loss = criterion(output_data, input_target)
         model.zero_grad()
         optimizer.zero_grad()
@@ -59,13 +48,13 @@ def train(epoch, input_model, input_training, input_target):
         optimizer.step()
         if idx % 50 == 0:
             print('Train Epoch: {}/{}\tLoss: {:.6f}'.format(idx, epoch, loss.data[0]))
-    return loss.data[0]
+    return loss
 
 
 def test(text, input_model, input_train, input_target):
     correct = 0
     for data, target in zip(input_train, input_target):
-        output_data = input_model(data.type(torch.float))
+        output_data = input_model(data)
         index = output_data.max(0)[1]
         if index == target:
             correct += 1
@@ -85,21 +74,22 @@ def init_weights(m):
 
 train_value, test_value = [], []
 for idx, (x_test, y_test) in enumerate(zip(input_arrays, target_arrays)):
-    # print('R{} Model Structure'.format(idx+1))
     model = NeuralNet(features_counts, 4)
     model.apply(init_weights)
     optimizer = optim.SGD(model.parameters(), lr=0.03)
-    x_train = torch.LongTensor([], device=device)
-    y_train = torch.LongTensor([], device=device)
+    x_train = torch.Tensor([])
+    y_train = torch.LongTensor([])
     for train_idx, (x, y) in enumerate(zip(input_arrays, target_arrays)):
         if train_idx != idx:
             x_train = torch.cat((x_train, x), 0)
             y_train = torch.cat((y_train, y), 0)
     loss = train(epoch, model, x_train, y_train)
-    print('R{} Train Loss: {}'.format(idx+1, loss))
+    print('R{} Train Loss: {}'.format(idx+1, loss.data[0]))
     train_value.append(test('R{} Train'.format(idx+1), model, x_train, y_train))
     test_value.append(test('R{} Test'.format(idx+1), model, x_test, y_test))
     print()
+
+
 print("time: {}".format(time.time()-start_time))
 overall_train = round(sum(train_value) / ratio)
 overall_test = round(sum(test_value) / ratio)

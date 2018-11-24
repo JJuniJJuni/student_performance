@@ -11,6 +11,7 @@ def count_values():
             labels = line.split(',')
             continue
         strings.append(line.split(','))
+    f.close()
     labels[-1] = 'atd'
     strings = np.transpose(strings)
     for idx, label in enumerate(labels):
@@ -27,5 +28,16 @@ def count_values():
         print()
 
 
+def print_data():
+    f = open("./data/data.txt", 'r')
+    for idx, line in enumerate(f):
+        tokens = line.split(',')
+        for token in tokens:
+            print('  ' + token, end='')
+        print()
+    f.close()
+
+
 if __name__ == '__main__':
-    count_values()
+    # count_values()
+    print_data()
