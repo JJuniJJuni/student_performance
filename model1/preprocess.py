@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from sklearn.preprocessing import LabelEncoder
+from collections import Counter
 import torch
 
 data_dict = {'ge': ['M', 'F'], 'cst': ['G', 'ST', 'SC', 'OBC', 'MOBC'],
@@ -21,13 +21,25 @@ data_dict = {'ge': ['M', 'F'], 'cst': ['G', 'ST', 'SC', 'OBC', 'MOBC'],
              'tt': ['Large', 'Average', 'Small'], 'atd': ['Good', 'Average', 'Poor']}
 
 
-def normalize(min, max, target):
-    if min == max:
-        if max >= 1:
-            return 1
+def normalize(data, label):
+    min_data, max_data = data.min(), data.max()
+    if min_data == max_data:
+        if max_data >= 1:
+            return np.array([1. for _ in range(len(data))])
         else:
             return 0
-    return round((target - min) / (max - min), 2)
+    data = (data - min_data) / (max_data - min_data)
+    data.round()
+    return data
+
+
+def standardize(data):
+    means = np.mean(data)
+    stds = np.std(data)
+    if stds == 0:
+        stds = 1
+    standardized_data = (data - means) / stds
+    return standardized_data
 
 
 def preprocess(labels=None):
@@ -39,9 +51,9 @@ def preprocess(labels=None):
             labels = line.split(',')
             continue
         strings.append(line.split(','))
-    exception_labels = ['cst', 'ms', 'fmi', 'fq', 'mq', 'fo',
-                        'mo', 'nf', 'ss', 'tt', 'ge']
-    # exception_labels = []
+    # exception_labels = ['cst', 'ms', 'fmi', 'fq', 'mq', 'fo',
+    #                     'mo', 'nf', 'ss', 'tt', 'ge']
+    exception_labels = []
     labels[-1] = 'atd'
     strings = np.transpose(strings)
     for idx, label in enumerate(labels):
@@ -58,14 +70,14 @@ def preprocess(labels=None):
             elements[label][idx] = data_dict[label].index(value)
         elements[label] = elements[label].astype(float)
 
-    #  normalize values
+    #  normalize, standardize
     for label in elements.keys():
         if label == 'esp':
             continue
-        max_value, min_value = max(elements[label]), min(elements[label])
-        for idx, value in enumerate(elements[label]):
-            elements[label][idx] = normalize(min_value, max_value, elements[label][idx])
-    input_matrix = (torch.Tensor([elements[element] for element in elements if element != 'esp'])).transpose(0, 1)
+        elements[label] = normalize(elements[label], label)
+        # elements[label] = standardize(elements[label])
+
+    input_matrix = torch.transpose(torch.FloatTensor([elements[element] for element in elements if element != 'esp']), 0, 1)
     target_matrix = torch.LongTensor(elements['esp'])
     return input_matrix, target_matrix, input_matrix.shape[1]
 
@@ -81,7 +93,6 @@ def cross_validation(ratio, input_data, target_data):
         input_arrays.append(input_data[start:end])
         target_arrays.append(target_data[start:end])
     return [input_arrays[idx] for idx in indexes], [target_arrays[idx] for idx in indexes]
-    # return input_arrays, target_arrays
 
 
 def subsets(s):
@@ -98,4 +109,4 @@ def is_bit_set(num, bit):
 
 if __name__ == '__main__':
     preprocess()
-    # print(subsets([1, 2, 3, 4, 5]))
+    # standardize()

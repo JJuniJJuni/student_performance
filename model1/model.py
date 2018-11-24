@@ -28,7 +28,7 @@ class NeuralNet(nn.Module):
 
 start_time = time.time()
 # epoch, device = 5000, torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-epoch = 5000
+epoch = 10000
 
 input_matrix, target_matrix, features_counts = preprocess()
 ratio = 10
