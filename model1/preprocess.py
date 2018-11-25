@@ -51,17 +51,22 @@ def preprocess(labels=None):
             labels = line.split(',')
             continue
         strings.append(line.split(','))
-    # exception_labels = ['cst', 'ms', 'fmi', 'fq', 'mq', 'fo',
-    #                     'mo', 'nf', 'ss', 'tt', 'ge']
-    exception_labels = []
     labels[-1] = 'atd'
+
     strings = np.transpose(strings)
     for idx, label in enumerate(labels):
         elements[label] = strings[idx]
     for idx, atd in enumerate(elements['atd']):
         elements['atd'][idx] = atd.replace('\n', '')
+    exception_labels = labels
+    wanted_labels = ['ge', 'arr', 'ls', 'as', 'fs', 'nf',
+                     'sh', 'ss', 'tt', 'atd', 'esp']
+    # for label in wanted_labels:
+    #     exception_labels.remove(label)
+    exception_labels = []
     for label in exception_labels:
         elements.pop(label)
+    print(elements.keys())
     f.close()
 
     #  assign index value to each label
@@ -75,8 +80,7 @@ def preprocess(labels=None):
         if label == 'esp':
             continue
         elements[label] = normalize(elements[label], label)
-        # elements[label] = standardize(elements[label])
-
+        elements[label] = standardize(elements[label])
     input_matrix = torch.transpose(torch.FloatTensor([elements[element] for element in elements if element != 'esp']), 0, 1)
     target_matrix = torch.LongTensor(elements['esp'])
     return input_matrix, target_matrix, input_matrix.shape[1]

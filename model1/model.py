@@ -13,10 +13,10 @@ from preprocess import cross_validation
 class NeuralNet(nn.Module):
     def __init__(self, input_size, output_size):
         super(NeuralNet, self).__init__()
-        self.input_layer = nn.Linear(input_size, 16, bias=False)
-        self.L1 = nn.Linear(16, 10, bias=False)
-        self.L2 = nn.Linear(10, 5, bias=False)
-        self.output_layer = nn.Linear(5, output_size, bias=False)
+        self.input_layer = nn.Linear(input_size, 18, bias=False)
+        self.L1 = nn.Linear(18, 12, bias=False)
+        self.L2 = nn.Linear(12, 8, bias=False)
+        self.output_layer = nn.Linear(8, output_size, bias=False)
 
     def forward(self, x):
         x = F.relu(self.input_layer(x))
@@ -28,7 +28,7 @@ class NeuralNet(nn.Module):
 
 start_time = time.time()
 # epoch, device = 5000, torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-epoch = 10000
+epoch = 5000
 
 input_matrix, target_matrix, features_counts = preprocess()
 ratio = 10
