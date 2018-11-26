@@ -3,25 +3,25 @@ import random
 from collections import Counter
 import torch
 
-data_dict = {'ge': ['M', 'F'], 'cst': ['G', 'ST', 'SC', 'OBC', 'MOBC'],
-             'tnp': ['Best', 'Vg', 'Good', 'Pass', 'Fail'],
-             'twp': ['Best', 'Vg', 'Good', 'Pass', 'Fail'],
-             'iap': ['Best', 'Vg', 'Good', 'Pass', 'Fail'],
-             'esp': ['Best', 'Vg', 'Good', 'Pass', 'Fail'],
+data_dict = {'ge': ['M', 'F'], 'cst': ['G', 'OBC', 'Others'],
+             'tnp': ['Vg', 'Good', 'Pass'],
+             'twp': ['Vg', 'Good', 'Pass'],
+             'iap': ['Vg', 'Good'],
+             'esp': ['Best', 'Vg', 'Good', 'Pass'],
              'arr': ['Y', 'N'], 'ms': ['Married', 'Unmarried'],
              'ls': ['T', 'V'], 'as': ['Free', 'Paid'],
-             'fmi': ['Vh', 'High', 'Am', 'Medium', 'Low'],
-             'fs': ['Large', 'Average', 'Small'],
-             'fq': ['Il', 'Um', '10', '12', 'Degree', 'Pg'],
-             'mq': ['Il', 'Um', '10', '12', 'Degree', 'Pg'],
+             'fmi': ['High', 'Medium', 'Low'],
+             'fs': ['Large', 'Small'],
+             'fq': ['High', 'Average', 'Low'],
+             'mq': ['High', 'Average', 'Low'],
              'fo': ['Service', 'Business', 'Retired', 'Farmer', 'Others'],
-             'mo': ['Service', 'Business', 'Retired', 'Housewife', 'Others'],
-             'nf': ['Large', 'Average', 'Small'], 'sh': ['Good', 'Average', 'Poor'],
-             'ss': ['Govt', 'Private'], 'me': ['Eng', 'Asm', 'Hin', 'Ben'],
-             'tt': ['Large', 'Average', 'Small'], 'atd': ['Good', 'Average', 'Poor']}
+             'mo': ['Housewife', 'Others'],
+             'nf': ['Large', 'Small'], 'sh': ['Good', 'Average', 'Poor'],
+             'ss': ['Govt', 'Private'], 'me': ['Eng', 'Asm', 'Others'],
+             'tt': ['Large', 'Small'], 'atd': ['Good', 'Average', 'Poor']}
 
 
-def normalize(data, label):
+def normalize(data):
     min_data, max_data = data.min(), data.max()
     if min_data == max_data:
         if max_data >= 1:
@@ -58,7 +58,7 @@ def preprocess(labels=None):
         elements[label] = strings[idx]
     for idx, atd in enumerate(elements['atd']):
         elements['atd'][idx] = atd.replace('\n', '')
-    exception_labels = []
+    exception_labels = ['ge', 'cst', 'fo', 'mo']
     for label in exception_labels:
         elements.pop(label)
     print('Current Features: ', elements.keys())
@@ -67,14 +67,53 @@ def preprocess(labels=None):
     #  assign index value to each label
     for label in elements.keys():
         for idx, value in enumerate(elements[label]):
+            if label in ['fs', 'tt']:
+                if value == 'Average':
+                    value = 'Large'
+            elif label == 'nf':
+                if value == 'Average':
+                    value = 'Small'
+            elif label in ['tnp', 'twp']:
+                if value == 'Best':
+                    value = 'Vg'
+            elif label == 'iap':
+                if value == 'Best':
+                    value = 'Vg'
+                elif value == 'Pass':
+                    value = 'Good'
+            elif label in ['fmi']:
+                if value == 'Vh':
+                    value = 'High'
+                elif value == 'Am':
+                    value = 'Medium'
+            elif label == 'mo':
+                if value != 'Housewife':
+                    value = 'Others'
+            elif label == 'me':
+                if value == 'Hin' or value == 'Ben':
+                    value = 'Others'
+            elif label == 'mq':
+                if value == 'll' or value == 'Um':
+                    value = 'Low'
+                else:
+                    value = 'High'
+            elif label == 'fq':
+                if value in ['Um', 'll']:
+                    value = 'Low'
+                elif value in ['12', '23']:
+                    value = 'Average'
+                else:
+                    value = 'High'
+            # elif label == 'cst':
+            #     if value != 'OBC' and value != 'G':
+            #         elements[label][idx] = 'Others'
             elements[label][idx] = data_dict[label].index(value)
         elements[label] = elements[label].astype(float)
-
     #  normalize, standardize
     for label in elements.keys():
         if label == 'esp':
             continue
-        elements[label] = normalize(elements[label], label)
+        elements[label] = normalize(elements[label])
         elements[label] = standardize(elements[label])
     input_matrix = torch.transpose(torch.FloatTensor([elements[element] for element in elements if element != 'esp']), 0, 1)
     target_matrix = torch.LongTensor(elements['esp'])
@@ -84,14 +123,15 @@ def preprocess(labels=None):
 def cross_validation(ratio, input_data, target_data):
     input_arrays, target_arrays, length = [], [], len(input_data)
     quo = length // ratio
-    indexes = [idx for idx in range(ratio)]
-    random.shuffle(indexes)
+    # indexes = [idx for idx in range(ratio)]
+    # random.shuffle(indexes)
     for idx in range(ratio):
         start = idx * quo
         end = (idx + 1) * quo if idx != ratio - 1 else (idx + 1) * quo + length % ratio
         input_arrays.append(input_data[start:end])
         target_arrays.append(target_data[start:end])
-    return [input_arrays[idx] for idx in indexes], [target_arrays[idx] for idx in indexes]
+    # return [input_arrays[idx] for idx in indexes], [target_arrays[idx] for idx in indexes]
+    return input_arrays, target_arrays
 
 
 def subsets(s):
