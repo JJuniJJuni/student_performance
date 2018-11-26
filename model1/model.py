@@ -13,15 +13,13 @@ from preprocess import cross_validation
 class NeuralNet(nn.Module):
     def __init__(self, input_size, output_size):
         super(NeuralNet, self).__init__()
-        self.input_layer = nn.Linear(input_size, 18, bias=False)
-        self.L1 = nn.Linear(18, 12, bias=False)
-        self.L2 = nn.Linear(12, 8, bias=False)
+        self.input_layer = nn.Linear(input_size, 15, bias=False)
+        self.L1 = nn.Linear(15, 8, bias=False)
         self.output_layer = nn.Linear(8, output_size, bias=False)
 
     def forward(self, x):
         x = F.relu(self.input_layer(x))
         x = F.relu(self.L1(x))
-        x = F.relu(self.L2(x))
         x = self.output_layer(x)
         return x
 

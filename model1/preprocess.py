@@ -58,15 +58,10 @@ def preprocess(labels=None):
         elements[label] = strings[idx]
     for idx, atd in enumerate(elements['atd']):
         elements['atd'][idx] = atd.replace('\n', '')
-    exception_labels = labels
-    wanted_labels = ['ge', 'arr', 'ls', 'as', 'fs', 'nf',
-                     'sh', 'ss', 'tt', 'atd', 'esp']
-    # for label in wanted_labels:
-    #     exception_labels.remove(label)
     exception_labels = []
     for label in exception_labels:
         elements.pop(label)
-    print(elements.keys())
+    print('Current Features: ', elements.keys())
     f.close()
 
     #  assign index value to each label
