@@ -10,22 +10,22 @@ ST: 20
 SC: 4
 
 [tnp]
-Good: 59
-Vg: 38
-Pass: 25
 Best: 9
+Vg: 38
+Good: 59
+Pass: 25
 
 [twp]
-Good: 65
-Vg: 44
-Pass: 17
 Best: 5
+Vg: 44
+Good: 65
+Pass: 17
 
 [iap]
+Best: 8
 Vg: 63
 Good: 53
 Pass: 7
-Best: 8
 
 [esp]
 Good: 54
@@ -49,11 +49,11 @@ Paid: 76
 Free: 55
 
 [fmi]
+Vh: 6
+High: 15
+Am: 27
 Medium: 63
 Low: 20
-Am: 27
-High: 15
-Vh: 6
 
 [fs]
 Average: 40

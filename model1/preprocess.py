@@ -16,10 +16,11 @@ data_dict = {'ge': ['M', 'F'], 'cst': ['G', 'OBC', 'Others'],
              'mq': ['High', 'Average', 'Low'],
              'fo': ['Service', 'Business', 'Retired', 'Farmer', 'Others'],
              'mo': ['Housewife', 'Others'],
-             'nf': ['Large', 'Small'], 'sh': ['Good', 'Average', 'Poor'],
+             'nf': ['Large', 'Average', 'Small'], 'sh': ['Good', 'Average', 'Poor'],
              'ss': ['Govt', 'Private'], 'me': ['Eng', 'Asm', 'Others'],
              'tt': ['Large', 'Small'], 'atd': ['Good', 'Average', 'Poor']}
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 def normalize(data):
     min_data, max_data = data.min(), data.max()
@@ -58,10 +59,11 @@ def preprocess(labels=None):
         elements[label] = strings[idx]
     for idx, atd in enumerate(elements['atd']):
         elements['atd'][idx] = atd.replace('\n', '')
-    exception_labels = ['ge', 'cst', 'fo', 'mo']
+    exception_labels = ['ge', 'cst', 'ms', 'fo', 'sh', 'me', 'atd']
+    # exception_labels = []
     for label in exception_labels:
         elements.pop(label)
-    print('Current Features: ', elements.keys())
+    print('Current Features: ', elements.keys(), 'Length:', len(elements.keys()))
     f.close()
 
     #  assign index value to each label
@@ -70,9 +72,6 @@ def preprocess(labels=None):
             if label in ['fs', 'tt']:
                 if value == 'Average':
                     value = 'Large'
-            elif label == 'nf':
-                if value == 'Average':
-                    value = 'Small'
             elif label in ['tnp', 'twp']:
                 if value == 'Best':
                     value = 'Vg'
@@ -81,11 +80,9 @@ def preprocess(labels=None):
                     value = 'Vg'
                 elif value == 'Pass':
                     value = 'Good'
-            elif label in ['fmi']:
-                if value == 'Vh':
+            elif label == 'fmi':
+                if value in ['Vh', 'Am']:
                     value = 'High'
-                elif value == 'Am':
-                    value = 'Medium'
             elif label == 'mo':
                 if value != 'Housewife':
                     value = 'Others'
@@ -115,16 +112,20 @@ def preprocess(labels=None):
             continue
         elements[label] = normalize(elements[label])
         elements[label] = standardize(elements[label])
-    input_matrix = torch.transpose(torch.FloatTensor([elements[element] for element in elements if element != 'esp']), 0, 1)
-    target_matrix = torch.LongTensor(elements['esp'])
+    input_matrix = torch.transpose(torch.FloatTensor([elements[element] for element in elements if element != 'esp'], device=device), 0, 1)
+    target_matrix = torch.LongTensor(elements['esp'], device=device)
     return input_matrix, target_matrix, input_matrix.shape[1]
 
 
 def cross_validation(ratio, input_data, target_data):
     input_arrays, target_arrays, length = [], [], len(input_data)
     quo = length // ratio
-    # indexes = [idx for idx in range(ratio)]
+
+    # Shuffle data
+    # indexes = [idx for idx in range(input_data.size()[0])]
     # random.shuffle(indexes)
+    # input_data = input_data[indexes]
+    # target_data = target_data[indexes]
     for idx in range(ratio):
         start = idx * quo
         end = (idx + 1) * quo if idx != ratio - 1 else (idx + 1) * quo + length % ratio
