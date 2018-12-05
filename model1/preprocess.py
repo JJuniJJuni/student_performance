@@ -1,6 +1,4 @@
 import numpy as np
-import random
-from collections import Counter
 import torch
 
 data_dict = {'ge': ['M', 'F'], 'cst': ['G', 'OBC', 'Others'],
@@ -20,7 +18,8 @@ data_dict = {'ge': ['M', 'F'], 'cst': ['G', 'OBC', 'Others'],
              'ss': ['Govt', 'Private'], 'me': ['Eng', 'Asm', 'Others'],
              'tt': ['Large', 'Small'], 'atd': ['Good', 'Average', 'Poor']}
 
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 
 def normalize(data):
     min_data, max_data = data.min(), data.max()
@@ -117,6 +116,7 @@ def preprocess(labels=None):
     return input_matrix, target_matrix, input_matrix.shape[1]
 
 
+#  10 - Fold Validation
 def cross_validation(ratio, input_data, target_data):
     input_arrays, target_arrays, length = [], [], len(input_data)
     quo = length // ratio
@@ -135,16 +135,16 @@ def cross_validation(ratio, input_data, target_data):
     return input_arrays, target_arrays
 
 
-def subsets(s):
-    sets = []
-    for i in range(1 << len(s)):
-        subset = [s[bit] for bit in range(len(s)) if is_bit_set(i, bit)]
-        sets.append(subset)
-    return sets
-
-
-def is_bit_set(num, bit):
-    return num & (1 << bit) > 0
+# def subsets(s):
+#     sets = []
+#     for i in range(1 << len(s)):
+#         subset = [s[bit] for bit in range(len(s)) if is_bit_set(i, bit)]
+#         sets.append(subset)
+#     return sets
+#
+#
+# def is_bit_set(num, bit):
+#     return num & (1 << bit) > 0
 
 
 if __name__ == '__main__':

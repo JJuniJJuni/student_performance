@@ -9,6 +9,7 @@ from preprocess import preprocess
 from preprocess import cross_validation
 
 
+#  Linear Neural Model
 class NeuralNet(nn.Module):
     def __init__(self, input_size, output_size):
         super(NeuralNet, self).__init__()
@@ -56,7 +57,7 @@ class BasicCNN(nn.Module):
 
 
 start_time = time.time()
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 epoch, batch_size = 10000, 20
 
 input_matrix, target_matrix, features_counts = preprocess()
@@ -65,6 +66,7 @@ input_arrays, target_arrays = cross_validation(ratio, input_matrix, target_matri
 criterion = nn.CrossEntropyLoss()
 
 
+#  Train Model
 def train(epoch, input_model, input_training, input_target):
     length = len(input_training)
     quo = length // batch_size
@@ -87,6 +89,7 @@ def train(epoch, input_model, input_training, input_target):
     return loss
 
 
+#  Test Model
 def test(text, input_model, input_train, input_target):
     correct = 0
     for data, target in zip(input_train, input_target):
@@ -99,6 +102,7 @@ def test(text, input_model, input_train, input_target):
     return percentage
 
 
+#  Init Weights using Xavior Function
 def init_weights(m):
     if isinstance(m, nn.Linear):
         size = m.weight.size()
@@ -108,6 +112,7 @@ def init_weights(m):
         m.weight.data.normal_(0.0, variance)
 
 
+#  Divide DataSets
 train_values, test_values = [], []
 for idx, (x_test, y_test) in enumerate(zip(input_arrays, target_arrays)):
     x_train = torch.Tensor([], device=device)
