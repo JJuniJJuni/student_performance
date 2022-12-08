@@ -1,4 +1,4 @@
-certifi==2018.10.15
+certifi==2022.12.7
 cffi==1.11.5
 ez-setup==0.9
 flake8==3.5.0
